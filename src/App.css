@@ -74,3 +74,11 @@ p {
 .roll-dice:focus {
   outline: none;
 }
+
+.rolls {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  font-size: 1.3em;
+  font-weight: lighter;
+}

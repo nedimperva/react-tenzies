@@ -6,6 +6,11 @@ import { useEffect, useState } from "react";
 export default function App() {
   const [dice, setDice] = useState(allNewDice());
   const [tenzies, setTenzies] = useState(false);
+  const [rolls, setRolls] = useState(0);
+  const [bestScore, setBestScore] = useState(
+    // use JSON.parse() to turn the stringified array back
+    () => JSON.parse(localStorage.getItem("bestScore")) || ""
+  );
 
   useEffect(() => {
     const firstValue = dice[0].value;
@@ -13,8 +18,23 @@ export default function App() {
     const allSameNumber = dice.every((die) => die.value === firstValue);
     if (allHeld && allSameNumber) {
       setTenzies(true);
+      setBestScore((prevScore) => {
+        if (bestScore === "") {
+          return rolls;
+        } else if (rolls < prevScore) {
+          return rolls;
+        } else {
+          return prevScore;
+        }
+      });
     }
-  }, [dice]);
+  }, [dice, bestScore]);
+  useEffect(() => {
+    // Every time the `bestScore` variable changes, save it in localStorage.
+    // You'll need to use JSON.stringify()
+    // to turn the array into a string to save in localStorage.
+    localStorage.setItem("bestScore", JSON.stringify(bestScore));
+  }, [bestScore]);
 
   function randomDieValue() {
     return Math.ceil(Math.random() * 6);
@@ -40,8 +60,10 @@ export default function App() {
           die.held ? die : { value: randomDieValue(), held: false, id: i + 1 }
         )
       );
+      setRolls((prev) => prev + 1);
     } else {
       setDice(allNewDice());
+      setRolls(0);
       setTenzies(false);
     }
   }
@@ -67,6 +89,10 @@ export default function App() {
         current value between rolls.
       </p>
       <div className="die-container">{diceElements}</div>
+      <div className="rolls">
+        <p>Rolls: {rolls}</p>
+        <p>Best Score: {bestScore}</p>
+      </div>
       <button className="roll-dice" onClick={rollUnheldDice}>
         {tenzies ? "Reset Game" : "Roll"}
       </button>
